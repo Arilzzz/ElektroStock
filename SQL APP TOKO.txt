@@ -1,0 +1,352 @@
+SQL APP TOKO
+
+-- phpMyAdmin SQL Dump
+-- version 5.2.0
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost:3306
+-- Generation Time: Sep 21, 2026 at 03:43 AM
+-- Server version: 8.0.30
+-- PHP Version: 8.3.13
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `elektroshop`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `brands`
+--
+
+CREATE TABLE `brands` (
+  `id` bigint NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `brands`
+--
+
+INSERT INTO `brands` (`id`, `name`, `description`, `created_at`, `updated_at`) VALUES
+(2, 'Samsung', 'Brand elektronik Samsung', '2026-09-19 07:10:25', '2026-09-19 07:10:25'),
+(3, 'LG', 'Brand elektronik LG', '2026-09-20 18:53:43', '2026-09-20 18:53:43'),
+(4, 'Polytron', 'Brand elektronik Polytron', '2026-09-20 18:53:49', '2026-09-20 18:53:49');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `categories`
+--
+
+CREATE TABLE `categories` (
+  `id` bigint NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`id`, `name`, `description`, `created_at`, `updated_at`) VALUES
+(2, 'Televisi', 'Kategori produk televisi', '2026-09-19 07:10:31', '2026-09-19 07:10:31'),
+(3, 'Kulkas', 'Kategori produk Kulkas', '2026-09-20 18:52:55', '2026-09-20 18:52:55'),
+(4, 'Mesin Cuci', 'Kategori produk mesin cuci', '2026-09-20 18:53:14', '2026-09-20 18:53:14'),
+(5, 'Kipas Angin', 'Kategori produk kipas angin', '2026-09-20 18:53:20', '2026-09-20 18:53:20');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `migrations`
+--
+
+CREATE TABLE `migrations` (
+  `id` int UNSIGNED NOT NULL,
+  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `personal_access_tokens`
+--
+
+CREATE TABLE `personal_access_tokens` (
+  `id` bigint UNSIGNED NOT NULL,
+  `tokenable_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tokenable_id` bigint UNSIGNED NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `abilities` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `last_used_at` timestamp NULL DEFAULT NULL,
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `personal_access_tokens`
+--
+
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES
+(2, 'App\\Models\\User', 1, 'electrostock-token', '4eec4923de984b4bf106a71f8801d8ce59d164ad5c845af75d3b6949fcd8fad0', '[\"*\"]', '2026-09-20 18:53:20', NULL, '2026-09-19 06:51:43', '2026-09-20 18:53:20');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `products`
+--
+
+CREATE TABLE `products` (
+  `id` bigint NOT NULL,
+  `category_id` bigint NOT NULL,
+  `brand_id` bigint NOT NULL,
+  `code` varchar(100) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `type_model` varchar(255) DEFAULT NULL,
+  `description` text,
+  `image` varchar(255) DEFAULT NULL,
+  `purchase_price` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `selling_price` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `stock` int NOT NULL DEFAULT '0',
+  `minimum_stock` int NOT NULL DEFAULT '0',
+  `unit` varchar(50) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`id`, `category_id`, `brand_id`, `code`, `name`, `type_model`, `description`, `image`, `purchase_price`, `selling_price`, `stock`, `minimum_stock`, `unit`, `created_at`, `updated_at`) VALUES
+(1, 2, 2, 'TV-SAM-001', 'Samsung Smart TV 43', 'UA43T6500', 'Smart TV Samsung 43 inch', NULL, '4100000.00', '5100000.00', 30, 3, 'unit', '2026-09-19 07:13:32', '2026-09-20 19:12:12');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sessions`
+--
+
+CREATE TABLE `sessions` (
+  `id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` bigint UNSIGNED DEFAULT NULL,
+  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_activity` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `sessions`
+--
+
+INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
+('8J1ZqSKLUYfri2uTM70fu0G5t7pln8vPSkyZx8AZ', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.137.0 Chrome/148.0.7778.280 Electron/42.10.0 Safari/537.36', 'eyJfdG9rZW4iOiJQOVlUZ0NNeGlLaE0yTlNMbkRTVWY2TDg4VzFvek44bnVqTFBTcE54IiwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cLzEyNy4wLjAuMTo4MDAwIiwicm91dGUiOm51bGx9LCJfZmxhc2giOnsib2xkIjpbXSwibmV3IjpbXX19', 1789824003);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stock_transactions`
+--
+
+CREATE TABLE `stock_transactions` (
+  `id` bigint NOT NULL,
+  `product_id` bigint DEFAULT NULL,
+  `created_by` bigint NOT NULL,
+  `type` enum('IN','OUT') NOT NULL,
+  `product_code_snapshot` varchar(100) NOT NULL,
+  `product_name_snapshot` varchar(255) NOT NULL,
+  `brand_name_snapshot` varchar(255) NOT NULL,
+  `product_type_snapshot` varchar(255) DEFAULT NULL,
+  `purchase_price` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `selling_price` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `quantity` int NOT NULL,
+  `description` text,
+  `transaction_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `stock_transactions`
+--
+
+INSERT INTO `stock_transactions` (`id`, `product_id`, `created_by`, `type`, `product_code_snapshot`, `product_name_snapshot`, `brand_name_snapshot`, `product_type_snapshot`, `purchase_price`, `selling_price`, `quantity`, `description`, `transaction_date`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, 'IN', 'TV-SAM-001', 'Samsung Smart TV 43', 'Samsung', 'UA43T6500', '4000000.00', '4500000.00', 10, 'Pembelian stok dari supplier', '2026-09-19 19:00:00', '2026-09-19 07:22:47', '2026-09-19 07:22:47'),
+(2, 1, 1, 'IN', 'TV-SAM-001', 'Samsung Smart TV 43', 'Samsung', 'UA43T6500', '4000000.00', '4500000.00', 10, 'Pembelian stok dari supplier', '2026-09-19 19:00:00', '2026-09-19 07:24:29', '2026-09-19 07:24:29'),
+(3, 1, 2, 'IN', 'TV-SAM-001', 'Samsung Smart TV 43', 'Samsung', 'UA43T6500', '4000000.00', '4500000.00', 10, 'Stok masuk dari supplier', '2026-09-21 09:00:00', '2026-09-20 18:55:15', '2026-09-20 18:55:15'),
+(4, 1, 2, 'OUT', 'TV-SAM-001', 'Samsung Smart TV 43', 'Samsung', 'UA43T6500', '4000000.00', '5000000.00', 2, 'Penjualan kepada pelanggan', '2026-09-21 10:00:00', '2026-09-20 19:05:53', '2026-09-20 19:05:53'),
+(5, 1, 2, 'IN', 'TV-SAM-001', 'Samsung Smart TV 43', 'Samsung', 'UA43T6500', '4100000.00', '5000000.00', 5, 'Tambahan stok supplier', '2026-09-21 11:00:00', '2026-09-20 19:11:54', '2026-09-20 19:11:54'),
+(6, 1, 2, 'OUT', 'TV-SAM-001', 'Samsung Smart TV 43', 'Samsung', 'UA43T6500', '4100000.00', '5100000.00', 3, 'Penjualan pelanggan', '2026-09-21 12:00:00', '2026-09-20 19:12:12', '2026-09-20 19:12:12');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` bigint NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `created_at`, `updated_at`) VALUES
+(1, 'Admin ElectroStock', 'admin@electrostock.test', '$2y$12$Ywuov/rzMuJdkFaAIH4LLuVh9Ckquz9DVmIFIdFUVqw7Y6LLj7eOq', '2026-09-19 06:39:51', '2026-09-19 06:39:51'),
+(2, 'Admin ElectroStock', 'admin@gmail.com', '$2y$12$pyL9AbpQP/LUI5ImQCFwRejuPbsdc.C229tXwTEyH3Ai9ui2DMs6O', '2026-09-20 18:45:30', '2026-09-20 18:45:30');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `brands`
+--
+ALTER TABLE `brands`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `categories`
+--
+ALTER TABLE `categories`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `migrations`
+--
+ALTER TABLE `migrations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `personal_access_tokens`
+--
+ALTER TABLE `personal_access_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
+  ADD KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`);
+
+--
+-- Indexes for table `products`
+--
+ALTER TABLE `products`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `code` (`code`),
+  ADD KEY `fk_products_category` (`category_id`),
+  ADD KEY `fk_products_brand` (`brand_id`);
+
+--
+-- Indexes for table `sessions`
+--
+ALTER TABLE `sessions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `sessions_user_id_index` (`user_id`),
+  ADD KEY `sessions_last_activity_index` (`last_activity`);
+
+--
+-- Indexes for table `stock_transactions`
+--
+ALTER TABLE `stock_transactions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_stock_transactions_product` (`product_id`),
+  ADD KEY `fk_stock_transactions_user` (`created_by`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `brands`
+--
+ALTER TABLE `brands`
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `categories`
+--
+ALTER TABLE `categories`
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `migrations`
+--
+ALTER TABLE `migrations`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `personal_access_tokens`
+--
+ALTER TABLE `personal_access_tokens`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `products`
+--
+ALTER TABLE `products`
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `stock_transactions`
+--
+ALTER TABLE `stock_transactions`
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `products`
+--
+ALTER TABLE `products`
+  ADD CONSTRAINT `fk_products_brand` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`id`) ON DELETE RESTRICT,
+  ADD CONSTRAINT `fk_products_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT;
+
+--
+-- Constraints for table `stock_transactions`
+--
+ALTER TABLE `stock_transactions`
+  ADD CONSTRAINT `fk_stock_transactions_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_stock_transactions_user` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

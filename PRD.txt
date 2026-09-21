@@ -1,0 +1,2579 @@
+PRD 
+
+PRODUCT REQUIREMENT DOCUMENT (PRD)
+ELECTROSTOCK
+
+Sistem Manajemen Inventaris Toko Elektronik Berbasis Web
+
+Versi: Final
+Status: Perancangan / Development
+Platform: Web Application
+Frontend: Vue.js + Vite + Tailwind CSS + Lucide
+Backend: Laravel REST API
+Database: MySQL
+Authentication: Laravel Sanctum
+HTTP Client: Axios
+
+1. Ringkasan Proyek
+
+ElectroStock adalah aplikasi manajemen inventaris berbasis web yang dirancang untuk membantu pengelolaan barang pada toko elektronik.
+
+Aplikasi ini berfokus pada pengelolaan:
+
+Data produk
+Kategori produk
+Brand/merek
+Stok barang
+Harga beli
+Harga jual
+Transaksi stok masuk
+Transaksi stok keluar
+Riwayat transaksi
+Pencarian dan penyaringan produk
+Monitoring stok minimum
+Laporan stok
+Laporan transaksi
+Laporan keuntungan operasional
+
+ElectroStock menggunakan arsitektur frontend dan backend terpisah. Vue.js digunakan sebagai antarmuka pengguna, sedangkan Laravel digunakan sebagai REST API yang menangani business logic dan akses database MySQL.
+
+2. Latar Belakang
+
+Pengelolaan inventaris pada toko elektronik membutuhkan pencatatan barang yang akurat karena produk yang dijual memiliki banyak variasi, seperti:
+
+Merek
+Model
+Tipe
+Harga beli
+Harga jual
+Jumlah stok
+
+Pengelolaan secara manual dapat menyebabkan kesulitan dalam mengetahui stok aktual, riwayat keluar-masuk barang, perubahan harga, serta keuntungan dari penjualan.
+
+ElectroStock dibuat untuk menyediakan sistem terpusat sehingga informasi inventaris dapat dikelola melalui satu aplikasi.
+
+3. Problem Statement
+
+Permasalahan yang ingin diselesaikan:
+
+Data produk sulit dikelola jika pencatatan masih dilakukan secara manual.
+Jumlah stok aktual perlu diketahui dengan cepat.
+Perubahan stok perlu memiliki histori yang jelas.
+Harga beli dan harga jual perlu dibedakan.
+Produk dengan stok rendah perlu mudah diidentifikasi.
+Histori transaksi harus tetap tersedia meskipun produk dihapus.
+Pemilik/admin membutuhkan laporan stok dan transaksi.
+Keuntungan operasional bulanan perlu dapat dihitung berdasarkan transaksi penjualan.
+4. Tujuan Sistem
+
+ElectroStock memiliki tujuan:
+
+Memusatkan pengelolaan data inventaris.
+Mempermudah pengelolaan produk.
+Mencatat setiap aktivitas stok masuk dan stok keluar.
+Menampilkan kondisi stok secara aktual.
+Menyediakan informasi harga beli dan harga jual.
+Memberikan peringatan ketika stok mencapai batas minimum.
+Menyimpan histori transaksi.
+Menyediakan laporan inventaris dan transaksi.
+Menghitung keuntungan operasional berdasarkan transaksi OUT.
+Menyediakan sistem yang dapat dikembangkan di masa mendatang.
+5. Target Pengguna
+
+Target pengguna utama:
+
+Admin
+
+Admin merupakan pengguna utama sistem yang memiliki akses terhadap seluruh fitur operasional.
+
+Admin dapat:
+
+Login
+Mengelola produk
+Mengelola kategori
+Mengelola brand
+Melakukan Stock In
+Melakukan Stock Out
+Melihat histori transaksi
+Melihat laporan
+Melihat informasi dashboard
+
+Untuk versi awal ElectroStock, hanya terdapat satu role yaitu Admin.
+
+6. Scope Sistem
+6.1 In Scope
+
+Fitur yang termasuk dalam versi proyek:
+
+Authentication
+Login admin
+Logout
+Token authentication
+Dashboard
+Total produk
+Total stok
+Produk dengan stok menipis
+Produk habis
+Product Management
+Tambah produk
+Lihat produk
+Detail produk
+Edit produk
+Hapus produk
+Upload gambar produk
+Search produk
+Filter produk
+Status stok
+Category Management
+Tambah kategori
+Lihat kategori
+Edit kategori
+Hapus kategori
+Brand Management
+Tambah brand
+Lihat brand
+Edit brand
+Hapus brand
+Stock Management
+Stock In
+Stock Out
+Validasi stok
+Riwayat stok
+Reporting
+Laporan stok
+Laporan transaksi
+Laporan keuntungan
+6.2 Out of Scope
+
+Fitur berikut tidak menjadi fokus versi awal:
+
+Multi-role kompleks
+Akuntansi resmi
+Payroll
+Supplier management kompleks
+Customer management
+Point of Sale/POS lengkap
+Integrasi marketplace
+Pembayaran online
+Integrasi pajak
+Mobile application native
+7. Business Rules
+7.1 Aturan Produk
+
+Produk memiliki:
+
+Kode Produk
+Nama Produk
+Kategori
+Brand
+Tipe/Model
+Deskripsi
+Gambar
+Harga Beli
+Harga Jual
+Stok
+Minimum Stok
+Satuan
+7.2 Aturan Stok
+
+Stock tidak boleh diubah melalui Product CRUD.
+
+Ketika produk baru dibuat:
+
+stock = 0
+
+Perubahan stok hanya dilakukan melalui:
+
+Stock In
+Stock Out
+Stock In
+Stok Baru = Stok Lama + Quantity
+Stock Out
+Stok Baru = Stok Lama - Quantity
+
+Stock Out tidak boleh dilakukan jika:
+
+quantity > stock
+8. Status Stok
+
+Status stok ditentukan berdasarkan stock dan minimum_stock.
+
+Aman
+stock > minimum_stock
+Menipis
+stock <= minimum_stock
+AND
+stock > 0
+Habis
+stock = 0
+
+Contoh:
+
+Stok	Minimum	Status
+20	3	Aman
+3	3	Menipis
+2	3	Menipis
+0	3	Habis
+9. Aturan Harga
+
+Produk memiliki dua harga utama:
+
+Purchase Price
+Selling Price
+Stock In
+
+Ketika Stock In dilakukan:
+
+purchase_price produk
+        ↓
+diperbarui dengan harga beli terbaru
+Stock Out
+
+Ketika Stock Out dilakukan:
+
+selling_price produk
+        ↓
+diperbarui dengan harga jual terbaru
+
+Namun harga yang tersimpan dalam transaksi merupakan snapshot harga pada saat transaksi.
+
+Dengan demikian perubahan harga produk di masa depan tidak mengubah histori transaksi lama.
+
+10. Perhitungan Profit
+
+Laporan profit merupakan laporan operasional, bukan laporan akuntansi resmi.
+
+Untuk transaksi OUT:
+
+Revenue
+= quantity × selling_price
+Cost
+= quantity × purchase_price
+Profit
+= Revenue - Cost
+
+Contoh:
+
+Quantity       = 2
+Purchase Price = Rp4.000.000
+Selling Price  = Rp5.000.000
+
+Maka:
+
+Revenue
+= 2 × 5.000.000
+= Rp10.000.000
+
+Cost
+= 2 × 4.000.000
+= Rp8.000.000
+
+Profit
+= Rp10.000.000 - Rp8.000.000
+= Rp2.000.000
+11. Product Deletion
+
+Produk boleh dihapus meskipun sebelumnya telah memiliki transaksi.
+
+Ketika produk dihapus:
+
+products
+    ↓
+product_id pada transaction
+    ↓
+SET NULL
+
+Namun informasi historis tetap tersedia melalui:
+
+product_code_snapshot
+product_name_snapshot
+brand_name_snapshot
+product_type_snapshot
+purchase_price
+selling_price
+quantity
+transaction_date
+
+Dengan demikian:
+
+Menghapus produk tidak menghapus histori transaksi.
+
+12. Functional Requirements
+FR-01 Authentication
+
+Sistem harus menyediakan login untuk Admin.
+
+Admin mengirim:
+
+email
+password
+
+Sistem menghasilkan authentication token menggunakan Laravel Sanctum.
+
+Token digunakan untuk request API berikutnya.
+
+FR-02 Dashboard
+
+Dashboard harus menampilkan:
+
+Total produk
+Total stok
+Produk stok menipis
+Produk habis
+FR-03 Product Management
+
+Admin dapat:
+
+Membuat produk
+Melihat daftar produk
+Melihat detail produk
+Mengubah produk
+Menghapus produk
+Mengupload gambar produk
+FR-04 Category Management
+
+Admin dapat melakukan CRUD kategori.
+
+FR-05 Brand Management
+
+Admin dapat melakukan CRUD brand.
+
+FR-06 Stock In
+
+Admin dapat mencatat barang masuk dengan informasi:
+
+Product
+Quantity
+Purchase Price
+Transaction Date
+Description
+
+Sistem kemudian:
+
+stock += quantity
+
+dan membuat transaksi IN.
+
+FR-07 Stock Out
+
+Admin dapat mencatat barang keluar:
+
+Product
+Quantity
+Selling Price
+Transaction Date
+Description
+
+Sistem melakukan validasi stok.
+
+Jika cukup:
+
+stock -= quantity
+
+Jika tidak:
+
+transaction rejected
+FR-08 Transaction History
+
+Sistem harus menyimpan semua transaksi:
+
+IN
+OUT
+
+dengan informasi:
+
+Produk
+Kode
+Brand
+Model
+Harga beli
+Harga jual
+Quantity
+Tanggal
+Admin
+Deskripsi
+FR-09 Reports
+
+Sistem menyediakan:
+
+Stock Report
+
+Menampilkan kondisi stok produk.
+
+Transaction Report
+
+Menampilkan transaksi IN dan OUT.
+
+Profit Report
+
+Menampilkan:
+
+Revenue
+Cost
+Profit
+
+berdasarkan transaksi OUT.
+
+13. User Flow
+                    ┌──────────┐
+                    │  Login   │
+                    └────┬─────┘
+                         │
+                         ▼
+                  ┌──────────────┐
+                  │   Dashboard  │
+                  └──────┬───────┘
+                         │
+          ┌──────────────┼──────────────┐
+          │              │              │
+          ▼              ▼              ▼
+       Produk         Stock          Laporan
+          │              │              │
+     ┌────┼────┐     ┌───┴───┐     ┌───┼────┐
+     ▼    ▼    ▼     ▼       ▼     ▼   ▼    ▼
+   Tambah Edit Hapus IN      OUT   Stok Trans Profit
+14. Use Case Diagram
+@startuml
+left to right direction
+
+actor Admin
+
+rectangle ElectroStock {
+
+    usecase "Login" as UC1
+    usecase "Melihat Dashboard" as UC2
+
+    usecase "Kelola Produk" as UC3
+    usecase "Kelola Kategori" as UC4
+    usecase "Kelola Brand" as UC5
+
+    usecase "Stock In" as UC6
+    usecase "Stock Out" as UC7
+    usecase "Melihat Riwayat Stok" as UC8
+
+    usecase "Laporan Stok" as UC9
+    usecase "Laporan Transaksi" as UC10
+    usecase "Laporan Profit" as UC11
+
+    usecase "Logout" as UC12
+}
+
+Admin --> UC1
+Admin --> UC2
+Admin --> UC3
+Admin --> UC4
+Admin --> UC5
+Admin --> UC6
+Admin --> UC7
+Admin --> UC8
+Admin --> UC9
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+
+@enduml
+15. Activity Diagram Stock In
+@startuml
+
+start
+
+:Admin membuka Stock In;
+:Pilih produk;
+:Masukkan quantity;
+:Masukkan harga beli;
+:Masukkan tanggal transaksi;
+:Masukkan deskripsi;
+
+:Validasi input;
+
+if (Input valid?) then (Ya)
+
+    :Lock product;
+    :Ambil stock saat ini;
+    :Tambah stock;
+    :Update purchase price;
+    :Simpan product;
+
+    :Buat Stock Transaction IN;
+
+    :Commit transaction;
+    :Tampilkan berhasil;
+
+else (Tidak)
+
+    :Tampilkan error validasi;
+
+endif
+
+stop
+
+@enduml
+16. Activity Diagram Stock Out
+@startuml
+
+start
+
+:Admin membuka Stock Out;
+:Pilih produk;
+:Masukkan quantity;
+:Masukkan harga jual;
+:Masukkan tanggal transaksi;
+:Masukkan deskripsi;
+
+:Validasi input;
+
+if (Input valid?) then (Ya)
+
+    :Lock product;
+    :Ambil stock saat ini;
+
+    if (Stock mencukupi?) then (Ya)
+
+        :Kurangi stock;
+        :Update selling price;
+        :Simpan product;
+
+        :Buat Stock Transaction OUT;
+
+        :Commit transaction;
+        :Tampilkan berhasil;
+
+    else (Tidak)
+
+        :Batalkan transaksi;
+        :Tampilkan stock tidak mencukupi;
+
+    endif
+
+else (Tidak)
+
+    :Tampilkan error validasi;
+
+endif
+
+stop
+
+@enduml
+17. ERD
+
+Struktur utama database:
+
+@startuml
+
+entity users {
+    * id : bigint <<PK>>
+    --
+    name : varchar
+    email : varchar
+    password : varchar
+}
+
+entity categories {
+    * id : bigint <<PK>>
+    --
+    name : varchar
+}
+
+entity brands {
+    * id : bigint <<PK>>
+    --
+    name : varchar
+}
+
+entity products {
+    * id : bigint <<PK>>
+    --
+    category_id : bigint <<FK>>
+    brand_id : bigint <<FK>>
+    code : varchar
+    name : varchar
+    type_model : varchar
+    description : text
+    image : varchar
+    purchase_price : decimal
+    selling_price : decimal
+    stock : integer
+    minimum_stock : integer
+    unit : varchar
+}
+
+entity stock_transactions {
+    * id : bigint <<PK>>
+    --
+    product_id : bigint <<FK>>
+    created_by : bigint <<FK>>
+    type : enum(IN, OUT)
+    product_code_snapshot : varchar
+    product_name_snapshot : varchar
+    brand_name_snapshot : varchar
+    product_type_snapshot : varchar
+    purchase_price : decimal
+    selling_price : decimal
+    quantity : integer
+    description : text
+    transaction_date : datetime
+}
+
+categories ||--o{ products
+brands ||--o{ products
+products ||--o{ stock_transactions
+users ||--o{ stock_transactions
+
+@enduml
+18. Database Relationship
+
+Relasi database:
+
+categories
+     │
+     │ 1:N
+     ▼
+ products ◄──────── brands
+     │                 ▲
+     │                 │
+     │ 1:N             │ 1:N
+     ▼                 │
+stock_transactions     │
+     ▲
+     │ N:1
+     │
+   users
+
+Secara konseptual:
+
+1 Category
+    ↓
+Many Products
+
+1 Brand
+    ↓
+Many Products
+
+1 Product
+    ↓
+Many Stock Transactions
+
+1 User/Admin
+    ↓
+Many Stock Transactions
+19. Class Diagram
+@startuml
+
+class User {
+    +id
+    +name
+    +email
+    +password
+    --
+    +stockTransactions()
+}
+
+class Category {
+    +id
+    +name
+    --
+    +products()
+}
+
+class Brand {
+    +id
+    +name
+    --
+    +products()
+}
+
+class Product {
+    +id
+    +category_id
+    +brand_id
+    +code
+    +name
+    +type_model
+    +description
+    +image
+    +purchase_price
+    +selling_price
+    +stock
+    +minimum_stock
+    +unit
+    --
+    +category()
+    +brand()
+    +stockTransactions()
+}
+
+class StockTransaction {
+    +id
+    +product_id
+    +created_by
+    +type
+    +product_code_snapshot
+    +product_name_snapshot
+    +brand_name_snapshot
+    +product_type_snapshot
+    +purchase_price
+    +selling_price
+    +quantity
+    +description
+    +transaction_date
+    --
+    +product()
+    +creator()
+}
+
+class StockService {
+    +stockIn()
+    +stockOut()
+}
+
+Category "1" -- "*" Product
+Brand "1" -- "*" Product
+Product "1" -- "*" StockTransaction
+User "1" -- "*" StockTransaction
+
+StockController --> StockService
+StockService --> Product
+StockService --> StockTransaction
+
+@enduml
+20. Sequence Diagram Stock In
+@startuml
+
+actor Admin
+participant "Vue.js" as Vue
+participant "StockController" as Controller
+participant "StockService" as Service
+participant "Product" as Product
+participant "StockTransaction" as Transaction
+database MySQL as DB
+
+Admin -> Vue : Isi form Stock In
+Vue -> Controller : POST /stock/in
+
+Controller -> Service : stockIn()
+
+Service -> DB : Begin Transaction
+Service -> Product : lockForUpdate()
+
+Product --> Service : Product data
+
+Service -> Product : stock += quantity
+Service -> Product : update purchase price
+Service -> DB : save()
+
+Service -> Transaction : create(IN)
+Transaction -> DB : INSERT
+
+Service -> DB : Commit
+
+Service --> Controller : Transaction
+Controller --> Vue : JSON response
+Vue --> Admin : Tampilkan berhasil
+
+@enduml
+21. Sequence Diagram Stock Out
+@startuml
+
+actor Admin
+participant "Vue.js" as Vue
+participant "StockController" as Controller
+participant "StockService" as Service
+participant "Product" as Product
+participant "StockTransaction" as Transaction
+database MySQL as DB
+
+Admin -> Vue : Isi form Stock Out
+Vue -> Controller : POST /stock/out
+
+Controller -> Service : stockOut()
+
+Service -> DB : Begin Transaction
+Service -> Product : lockForUpdate()
+
+Product --> Service : Product data
+
+Service -> Service : Cek stock
+
+alt Stock mencukupi
+
+    Service -> Product : stock -= quantity
+    Service -> Product : update selling price
+    Service -> DB : save()
+
+    Service -> Transaction : create(OUT)
+    Transaction -> DB : INSERT
+
+    Service -> DB : Commit
+    Service --> Controller : Transaction
+    Controller --> Vue : Success
+
+else Stock tidak mencukupi
+
+    Service -> DB : Rollback
+    Service --> Controller : Validation Error
+    Controller --> Vue : Error
+
+end
+
+@enduml
+22. Arsitektur Sistem
+                         ELECTROSTOCK
+                              │
+              ┌───────────────┴───────────────┐
+              │                               │
+          FRONTEND                         BACKEND
+             Vue                           Laravel
+              │                               │
+             Vite                         REST API
+              │                               │
+           Axios                         Controllers
+              │                               │
+              │                            Services
+              │                               │
+              │                             Models
+              │                               │
+              └───────────────┬───────────────┘
+                              │
+                           MySQL
+23. Arsitektur Frontend
+
+Frontend menggunakan pendekatan component-based Vue.
+
+src/
+│
+├── components/
+│   ├── common/
+│   │   ├── AppButton.vue
+│   │   ├── AppModal.vue
+│   │   ├── AppInput.vue
+│   │   ├── ConfirmModal.vue
+│   │   └── LoadingSpinner.vue
+│   │
+│   ├── products/
+│   │   ├── ProductTable.vue
+│   │   ├── ProductFilter.vue
+│   │   ├── ProductForm.vue
+│   │   ├── ProductDetail.vue
+│   │   └── ProductDeleteModal.vue
+│   │
+│   ├── categories/
+│   ├── brands/
+│   ├── stock/
+│   └── reports/
+│
+├── layouts/
+│   └── MainLayout.vue
+│
+├── pages/
+│   ├── auth/
+│   │   └── Login.vue
+│   │
+│   ├── dashboard/
+│   │   └── Dashboard.vue
+│   │
+│   ├── products/
+│   │   └── Products.vue
+│   │
+│   ├── categories/
+│   ├── brands/
+│   ├── stock/
+│   └── reports/
+│
+├── router/
+│   └── index.js
+│
+├── services/
+│   ├── api.js
+│   └── productService.js
+│
+├── stores/
+│   └── auth.js
+│
+├── utils/
+│   ├── formatCurrency.js
+│   └── formatDate.js
+│
+├── App.vue
+├── main.js
+└── style.css
+24. Arsitektur Backend
+app/
+│
+├── Http/
+│   ├── Controllers/
+│   │   ├── AuthController.php
+│   │   ├── DashboardController.php
+│   │   ├── ProductController.php
+│   │   ├── CategoryController.php
+│   │   ├── BrandController.php
+│   │   ├── StockController.php
+│   │   └── ReportController.php
+│   │
+│   └── Requests/
+│       ├── StoreProductRequest.php
+│       ├── UpdateProductRequest.php
+│       ├── StoreStockInRequest.php
+│       └── StoreStockOutRequest.php
+│
+├── Models/
+│   ├── User.php
+│   ├── Product.php
+│   ├── Category.php
+│   ├── Brand.php
+│   └── StockTransaction.php
+│
+└── Services/
+    └── StockService.php
+
+Prinsipnya:
+
+Controller
+    ↓
+Service
+    ↓
+Model
+    ↓
+Database
+
+Controller bertugas menangani HTTP request/response, sedangkan business logic stok berada di StockService.
+
+25. API Specification
+Authentication
+POST /api/login-Admin
+POST /api/logout
+Dashboard
+GET /api/dashboard
+Products
+GET    /api/products
+POST   /api/products
+GET    /api/products/{id}
+POST   /api/products/{id}
+DELETE /api/products/{id}
+
+Update menggunakan method override:
+
+_method=PUT
+
+jika request dikirim sebagai multipart/form-data.
+
+Categories
+GET    /api/categories
+POST   /api/categories
+GET    /api/categories/{id}
+PUT    /api/categories/{id}
+DELETE /api/categories/{id}
+Brands
+GET    /api/brands
+POST   /api/brands
+GET    /api/brands/{id}
+PUT    /api/brands/{id}
+DELETE /api/brands/{id}
+Stock
+POST /api/stock/in
+POST /api/stock/out
+GET  /api/stock/history
+Reports
+GET /api/reports/stock
+GET /api/reports/transactions
+GET /api/reports/profit
+26. Authentication Flow
+Vue Login
+    │
+    ▼
+POST /login-Admin
+    │
+    ▼
+Laravel
+    │
+    ├── Validasi email/password
+    │
+    └── Generate Sanctum Token
+            │
+            ▼
+       Vue menerima token
+            │
+            ▼
+       localStorage
+            │
+            ▼
+Axios Interceptor
+            │
+            ▼
+Authorization: Bearer TOKEN
+27. Product Management UI
+
+Halaman utama produk terdiri dari:
+
+┌──────────────────────────────────────────────┐
+│ Produk                     [+ Tambah Produk] │
+│ Kelola data produk                          │
+├──────────────────────────────────────────────┤
+│ Search | Category | Brand | Status           │
+├──────────────────────────────────────────────┤
+│ Product Table                               │
+│                                              │
+│ Foto | Produk | Brand | Harga | Stok | Aksi │
+│                                              │
+└──────────────────────────────────────────────┘
+Product Form
+
+Form produk terdiri dari:
+
+Kode produk
+Nama produk
+Kategori
+Brand
+Tipe/model
+Harga beli
+Harga jual
+Minimum stock
+Satuan
+Deskripsi
+Gambar
+
+Tidak ada field stock.
+
+28. Component Communication
+
+Contoh Product Management:
+
+Products.vue
+      │
+      ├── props ↓
+      │
+      ▼
+ProductTable.vue
+      │
+      └── emit("edit")
+                   │
+                   ▼
+              Products.vue
+                   │
+                   ▼
+            ProductForm.vue
+
+Dengan konsep Vue:
+
+Parent → Props → Child
+
+Child → Emits → Parent
+29. Axios Configuration
+
+API client terpusat:
+
+src/services/api.js
+
+Fungsinya:
+
+Base URL
+Authorization token
+Request interceptor
+Response interceptor
+Handling 401 Unauthorized
+30. Error Handling
+
+Sistem harus menangani:
+
+Validation Error
+
+Contoh:
+
+Nama produk wajib diisi.
+Unauthorized
+401
+↓
+hapus token
+↓
+redirect /login
+Stock Tidak Mencukupi
+Stok tidak mencukupi.
+Stok tersedia: X
+Server Error
+
+Frontend menampilkan pesan bahwa terjadi kesalahan server tanpa menampilkan detail internal server kepada pengguna.
+
+31. Data Integrity
+
+Untuk perubahan stok digunakan:
+
+DB::transaction()
+
+dan:
+
+lockForUpdate()
+
+Tujuannya mencegah kondisi ketika dua transaksi mengubah stok yang sama secara bersamaan dan menghasilkan nilai stok yang tidak konsisten.
+
+32. Stock Data Architecture
+
+Current stock:
+
+products.stock
+
+Transaction history:
+
+stock_transactions
+
+Hubungannya:
+
+                    Product
+                       │
+              current stock
+                       │
+                       ▼
+                 products.stock
+                       │
+             ┌─────────┴─────────┐
+             │                   │
+          Stock In           Stock Out
+             │                   │
+             ▼                   ▼
+         + quantity          - quantity
+             │                   │
+             └─────────┬─────────┘
+                       ▼
+              stock_transactions
+33. Dashboard Design
+
+Dashboard dirancang menampilkan informasi penting secara cepat.
+
+┌──────────────┬──────────────┬──────────────┬──────────────┐
+│ Total Produk │ Total Stok   │ Stok Menipis │ Stok Habis   │
+│     120      │     850      │      12      │      5       │
+└──────────────┴──────────────┴──────────────┴──────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    Informasi Stok                           │
+│                                                             │
+│ Produk dengan stok rendah                                   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+34. Navigation
+
+Sidebar utama:
+
+ElectroStock
+
+Dashboard
+
+Produk
+Kategori
+Brand
+
+Stock In
+Stock Out
+Riwayat Stok
+
+Laporan
+
+Logout
+35. Non-Functional Requirements
+Performance
+API harus memberikan response secara efisien.
+Query database harus menggunakan relasi yang sesuai.
+Data besar sebaiknya menggunakan pagination.
+Security
+API yang membutuhkan autentikasi dilindungi Sanctum.
+Password tidak disimpan dalam bentuk plaintext.
+Validasi input dilakukan pada backend.
+Token tidak dikirim melalui URL.
+Data sensitif tidak ditampilkan dalam response.
+Maintainability
+
+Kode harus menggunakan:
+
+Controller terpisah
+Service layer
+Reusable Vue components
+API service
+Form Request
+Model relationship
+Scalability
+
+Struktur aplikasi harus memungkinkan penambahan fitur seperti:
+
+Supplier
+Customer
+Purchase Order
+Sales
+Multi-admin
+Role permission
+Barcode
+Export laporan
+36. Testing Plan
+Authentication
+Login valid
+Login invalid
+Token valid
+Token expired
+Logout
+Product
+Create
+Read
+Update
+Delete
+Upload image
+Search
+Filter
+Stock
+Stock In
+stock 10
+IN 5
+= 15
+Stock Out
+stock 15
+OUT 3
+= 12
+Invalid Stock Out
+stock 5
+OUT 10
+= rejected
+Reports
+Transaction count
+Total IN
+Total OUT
+Revenue
+Cost
+Profit
+37. Acceptance Criteria
+
+ElectroStock dianggap memenuhi requirement apabila:
+
+Authentication
+Admin dapat login.
+Token berhasil digunakan untuk request API.
+User tanpa token tidak dapat mengakses endpoint protected.
+Product
+Admin dapat CRUD produk.
+Admin dapat upload gambar.
+Produk baru mempunyai stock 0.
+Product CRUD tidak dapat mengubah stock.
+Stock
+Stock In menambah stock.
+Stock Out mengurangi stock.
+Stock Out tidak dapat melebihi stock.
+Semua transaksi tercatat.
+Harga transaksi tersimpan sebagai snapshot.
+Product Deletion
+Produk dapat dihapus.
+Histori transaksi tetap tersedia.
+Report
+Laporan stok menampilkan data aktual.
+Laporan transaksi menampilkan histori.
+Laporan profit menghitung revenue, cost dan profit berdasarkan transaksi OUT.
+38. Teknologi
+Layer	Teknologi
+Frontend	Vue.js
+Build Tool	Vite
+Styling	Tailwind CSS
+Icons	Lucide Vue
+HTTP Client	Axios
+Backend	Laravel
+API	REST API
+Authentication	Laravel Sanctum
+Database	MySQL
+Version Control	Git + GitHub
+Editor	Visual Studio Code
+39. Development Roadmap
+
+Urutan implementasi:
+
+01. PRD
+      ↓
+02. Database Design
+      ↓
+03. Laravel Setup
+      ↓
+04. Authentication API
+      ↓
+05. Category API
+      ↓
+06. Brand API
+      ↓
+07. Product API
+      ↓
+08. Stock Service
+      ↓
+09. Stock API
+      ↓
+10. Report API
+      ↓
+11. API Testing
+      ↓
+12. Vue Setup
+      ↓
+13. Authentication Frontend
+      ↓
+14. Main Layout
+      ↓
+15. Dashboard
+      ↓
+16. Product Management
+      ↓
+17. Category Management
+      ↓
+18. Brand Management
+      ↓
+19. Stock Management
+      ↓
+20. Transaction History
+      ↓
+21. Reports
+      ↓
+22. Integration Testing
+      ↓
+23. UI/UX Polish
+      ↓
+24. Deployment
+40. Kesimpulan
+
+ElectroStock dirancang sebagai sistem manajemen inventaris toko elektronik berbasis web dengan arsitektur frontend dan backend terpisah.
+
+Sistem menggunakan:
+
+Vue.js
+   ↓
+Axios
+   ↓
+Laravel REST API
+   ↓
+Laravel Service
+   ↓
+Eloquent Model
+   ↓
+MySQL
+
+Konsep utama sistem adalah pemisahan antara data produk saat ini dan histori transaksi.
+
+products
+   ↓
+Current State
+
+stock_transactions
+   ↓
+Historical State
+
+Perubahan stok hanya dilakukan melalui Stock In dan Stock Out, sementara setiap transaksi menyimpan snapshot informasi penting sehingga histori tetap dapat dibaca meskipun data produk berubah atau produk dihapus.
+
+Dengan rancangan tersebut, ElectroStock tidak hanya berfungsi sebagai CRUD produk, tetapi menjadi sistem inventaris yang memiliki kontrol stok, histori transaksi, monitoring kondisi stok, serta laporan keuntungan operasional dalam satu platform.
+
+Status rancangan saat ini
+                  ELECTROSTOCK
+                       │
+              ┌────────┴────────┐
+              │                 │
+          REQUIREMENT         DESIGN
+              │                 │
+              ▼                 ▼
+             PRD             UI/UX
+              │                 │
+              ├───────┬─────────┤
+              │       │         │
+              ▼       ▼         ▼
+             ERD    UML      Architecture
+              │       │         │
+              └───────┼─────────┘
+                      │
+                      ▼
+                 IMPLEMENTATION
+                      │
+             ┌────────┴────────┐
+             │                 │
+          Laravel             Vue
+          Backend           Frontend
+             │                 │
+             └────────┬────────┘
+                      ▼
+                   Testing
+                      │
+                      ▼
+                  Deployment
+
+Dokumen ini sekarang bisa dijadikan baseline utama ElectroStock. Keputusan arsitektur yang sudah kita buat, termasuk pemisahan StockService, StockController, komponen Vue seperti ProductTable, ProductForm, ProductFilter, dan aturan bahwa stock tidak diedit melalui Product CRUD, sudah tercermin di dalam PRD ini.
+
+
+Struktur halaman ElectroStock
+ElectroStock
+│
+├── 🔐 Authentication
+│   └── Login
+│
+├── 📊 Dashboard
+│   └── Dashboard
+│
+├── 📦 Master Data
+│   ├── Produk
+│   ├── Kategori
+│   └── Brand
+│
+├── 📥📤 Stock Management
+│   ├── Stock In
+│   ├── Stock Out
+│   └── Riwayat Stok
+│
+└── 📈 Reports
+    ├── Laporan Stok
+    ├── Laporan Transaksi
+    └── Laporan Profit
+
+Jadi secara keseluruhan ada 11 halaman utama.
+
+1. Login
+
+Route:
+
+/login
+
+File:
+
+src/pages/auth/Login.vue
+
+Desain:
+
+┌──────────────────────────────────────┐
+│                                      │
+│           ⚡ ELECTROSTOCK             │
+│       Inventory Management           │
+│                                      │
+│   Email                              │
+│   [____________________________]     │
+│                                      │
+│   Password                           │
+│   [____________________________]     │
+│                                      │
+│          [      LOGIN      ]          │
+│                                      │
+└──────────────────────────────────────┘
+
+Fungsinya hanya autentikasi Admin.
+
+2. Dashboard
+
+Route:
+
+/dashboard
+
+File:
+
+src/pages/dashboard/Dashboard.vue
+
+Ini adalah halaman pertama setelah login.
+
+┌────────────────────────────────────────────────────────────┐
+│ Dashboard                              Admin ElectroStock │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌──────────┐ │
+│ │ Produk     │ │ Total Stok │ │ Menipis    │ │ Habis    │ │
+│ │    120     │ │    850     │ │     12     │ │    5     │ │
+│ └────────────┘ └────────────┘ └────────────┘ └──────────┘ │
+│                                                            │
+│ ┌─────────────────────────┐ ┌────────────────────────────┐ │
+│ │ Produk Stok Menipis     │ │ Transaksi Terbaru         │ │
+│ │                         │ │                            │ │
+│ │ Samsung TV       2      │ │ OUT  Samsung TV      ...   │ │
+│ │ Kabel HDMI       3      │ │ IN   Kulkas          ...   │ │
+│ └─────────────────────────┘ └────────────────────────────┘ │
+└────────────────────────────────────────────────────────────┘
+3. Product Management
+
+Route:
+
+/products
+
+File:
+
+src/pages/products/Products.vue
+
+Ini halaman yang sedang kita kerjakan sekarang.
+
+Tetapi halaman ini terdiri dari beberapa component:
+
+Products.vue
+│
+├── ProductFilter.vue
+├── ProductTable.vue
+├── ProductForm.vue
+├── ProductDetail.vue
+└── ProductDeleteModal.vue
+
+Tampilannya:
+
+┌─────────────────────────────────────────────────────────────┐
+│ Produk                                  [+ Tambah Produk]   │
+│ Kelola produk ElectroStock                                  │
+├─────────────────────────────────────────────────────────────┤
+│ 🔍 Cari │ Kategori ▼ │ Brand ▼ │ Status ▼                  │
+├─────────────────────────────────────────────────────────────┤
+│ Produk │ Kategori │ Brand │ Harga │ Stok │ Status │ Aksi   │
+│ Samsung│ Televisi │ Samsung│ 5jt │ 30 │ 🟢 Aman │ ...     │
+│ LG TV  │ Televisi │ LG     │ 4jt │ 2  │ 🟡 Tipis│ ...     │
+└─────────────────────────────────────────────────────────────┘
+4. Category Management
+
+Route:
+
+/categories
+
+File:
+
+src/pages/categories/Categories.vue
+
+Fungsinya CRUD kategori.
+
+Contoh:
+
+┌──────────────────────────────────────────────┐
+│ Kategori                     [+ Tambah]      │
+├──────────────────────────────────────────────┤
+│ 🔍 Cari kategori...                          │
+├──────────────┬───────────────────────────────┤
+│ Nama         │ Aksi                          │
+├──────────────┼───────────────────────────────┤
+│ Televisi     │ Edit | Hapus                  │
+│ Kulkas       │ Edit | Hapus                  │
+│ Mesin Cuci   │ Edit | Hapus                  │
+└──────────────┴───────────────────────────────┘
+
+Tidak perlu halaman detail khusus.
+
+Form tambah/edit bisa menggunakan modal.
+
+5. Brand Management
+
+Route:
+
+/brands
+
+File:
+
+src/pages/brands/Brands.vue
+
+Konsepnya hampir sama dengan kategori.
+
+┌──────────────────────────────────────────────┐
+│ Brand                         [+ Tambah]      │
+├──────────────────────────────────────────────┤
+│ 🔍 Cari brand...                             │
+├──────────────┬───────────────────────────────┤
+│ Brand        │ Aksi                          │
+├──────────────┼───────────────────────────────┤
+│ Samsung      │ Edit | Hapus                  │
+│ LG           │ Edit | Hapus                  │
+│ Sony         │ Edit | Hapus                  │
+└──────────────┴───────────────────────────────┘
+6. Stock In
+
+Route:
+
+/stock/in
+
+File:
+
+src/pages/stock/StockIn.vue
+
+Ini halaman untuk barang masuk.
+
+┌──────────────────────────────────────────────┐
+│ Stock In                                     │
+│ Catat barang masuk ke gudang                 │
+├──────────────────────────────────────────────┤
+│                                              │
+│ Produk                                       │
+│ [ Samsung Smart TV 43              ▼ ]      │
+│                                              │
+│ Quantity                                     │
+│ [ 10 ]                                       │
+│                                              │
+│ Harga Beli                                   │
+│ [ Rp4.000.000 ]                              │
+│                                              │
+│ Tanggal                                       │
+│ [ 21/09/2026 ]                               │
+│                                              │
+│ Keterangan                                   │
+│ [ Barang dari supplier................ ]     │
+│                                              │
+│                    [ Simpan Stock In ]       │
+└──────────────────────────────────────────────┘
+
+Ketika disimpan:
+
+30 stock
++
+10 Stock In
+=
+40 stock
+7. Stock Out
+
+Route:
+
+/stock/out
+
+File:
+
+src/pages/stock/StockOut.vue
+
+Untuk barang keluar/penjualan.
+
+┌──────────────────────────────────────────────┐
+│ Stock Out                                    │
+│ Catat barang keluar                          │
+├──────────────────────────────────────────────┤
+│ Produk                                       │
+│ [ Samsung Smart TV 43              ▼ ]      │
+│                                              │
+│ Stok tersedia: 40 unit                      │
+│                                              │
+│ Quantity                                     │
+│ [ 2 ]                                        │
+│                                              │
+│ Harga Jual                                   │
+│ [ Rp5.000.000 ]                              │
+│                                              │
+│ Tanggal                                       │
+│ [ 21/09/2026 ]                               │
+│                                              │
+│ Keterangan                                   │
+│ [ Penjualan kepada pelanggan........ ]       │
+│                                              │
+│                    [ Simpan Stock Out ]      │
+└──────────────────────────────────────────────┘
+
+Jika:
+
+40 stock
+-
+2 Stock Out
+=
+38 stock
+
+Kalau quantity melebihi stok, backend menolak transaksi.
+
+8. Riwayat Stok
+
+Route:
+
+/stock/history
+
+File:
+
+src/pages/stock/StockHistory.vue
+
+Ini halaman untuk melihat semua transaksi.
+
+┌──────────────────────────────────────────────────────────────┐
+│ Riwayat Stok                                                 │
+├──────────────────────────────────────────────────────────────┤
+│ 🔍 Cari │ Tipe ▼ │ Tanggal ▼                                │
+├──────────────────────────────────────────────────────────────┤
+│ Tanggal │ Produk │ Tipe │ Qty │ Harga │ Admin │ Keterangan  │
+├─────────┼────────┼──────┼─────┼───────┼───────┼─────────────┤
+│21 Sep   │ TV     │ IN   │ 10  │ 4jt   │ Admin │ Supplier    │
+│21 Sep   │ TV     │ OUT  │ 2   │ 5jt   │ Admin │ Penjualan   │
+└──────────────────────────────────────────────────────────────┘
+
+Ini mengambil data dari:
+
+GET /api/stock/history
+
+atau endpoint transaksi yang sudah kita siapkan.
+
+9. Laporan Stok
+
+Route:
+
+/reports/stock
+
+File:
+
+src/pages/reports/StockReport.vue
+
+Menampilkan kondisi inventaris.
+
+┌──────────────────────────────────────────────────────────────┐
+│ Laporan Stok                                                 │
+├──────────────────────────────────────────────────────────────┤
+│ Total Produk: 120       Total Stok: 850                     │
+├──────────────────────────────────────────────────────────────┤
+│ Produk │ Kategori │ Stok │ Min. Stok │ Status               │
+├────────┼──────────┼──────┼───────────┼──────────────────────┤
+│ TV     │ Televisi │ 30   │ 3         │ 🟢 Aman              │
+│ Kulkas │ Kulkas   │ 2    │ 3         │ 🟡 Menipis           │
+│ Kabel  │ Aksesoris│ 0    │ 5         │ 🔴 Habis             │
+└──────────────────────────────────────────────────────────────┘
+10. Laporan Transaksi
+
+Route:
+
+/reports/transactions
+
+File:
+
+src/pages/reports/TransactionReport.vue
+
+Fokus pada histori transaksi dan summary.
+
+┌─────────────────────────────────────────────────────────────┐
+│ Laporan Transaksi                                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ ┌─────────────────┐       ┌─────────────────┐               │
+│ │ Total Stock In  │       │ Total Stock Out │               │
+│ │       120       │       │        45       │               │
+│ └─────────────────┘       └─────────────────┘               │
+│                                                             │
+│ Filter: [Bulan ▼] [Tahun ▼] [Tipe ▼]                       │
+│                                                             │
+│ Tanggal │ Produk │ Tipe │ Qty │ Harga │ Admin               │
+└─────────────────────────────────────────────────────────────┘
+11. Laporan Profit
+
+Route:
+
+/reports/profit
+
+File:
+
+src/pages/reports/ProfitReport.vue
+
+Ini salah satu halaman penting karena menunjukkan nilai bisnis aplikasi.
+
+┌─────────────────────────────────────────────────────────────┐
+│ Laporan Profit                                              │
+├─────────────────────────────────────────────────────────────┤
+│ Periode: [ September 2026 ▼ ]                               │
+│                                                             │
+│ ┌──────────────┐ ┌──────────────┐ ┌───────────────────────┐ │
+│ │ Revenue      │ │ Cost         │ │ Profit                │ │
+│ │ Rp50.000.000 │ │ Rp40.000.000 │ │ Rp10.000.000          │ │
+│ └──────────────┘ └──────────────┘ └───────────────────────┘ │
+│                                                             │
+│ Produk        Qty      Revenue       Cost       Profit      │
+│ Samsung TV    10       50jt          40jt       10jt       │
+│ LG TV          5       20jt          16jt        4jt       │
+└─────────────────────────────────────────────────────────────┘
+
+Perhitungan berasal dari transaksi OUT.
+
+Jadi total halaman kita
+No	Halaman	Route
+1	Login	/login
+2	Dashboard	/dashboard
+3	Produk	/products
+4	Kategori	/categories
+5	Brand	/brands
+6	Stock In	/stock/in
+7	Stock Out	/stock/out
+8	Riwayat Stok	/stock/history
+9	Laporan Stok	/reports/stock
+10	Laporan Transaksi	/reports/transactions
+11	Laporan Profit	/reports/profit
+
+11 halaman utama.
+
+Tetapi jangan lupa, halaman Produk sendiri memiliki beberapa komponen:
+
+Product Management
+│
+├── ProductTable
+├── ProductFilter
+├── ProductForm
+├── ProductDetail
+└── ProductDeleteModal
+
+Begitu juga halaman lain bisa memiliki komponen pendukung. Jadi 11 halaman bukan berarti cuma 11 file Vue.
+
+Struktur frontend final
+
+Kalau semuanya digabung dengan arsitektur yang kita sepakati:
+
+src/
+│
+├── components/
+│   ├── common/
+│   ├── products/
+│   ├── categories/
+│   ├── brands/
+│   ├── stock/
+│   └── reports/
+│
+├── layouts/
+│   └── MainLayout.vue
+│
+├── pages/
+│   ├── auth/
+│   │   └── Login.vue
+│   │
+│   ├── dashboard/
+│   │   └── Dashboard.vue
+│   │
+│   ├── products/
+│   │   └── Products.vue
+│   │
+│   ├── categories/
+│   │   └── Categories.vue
+│   │
+│   ├── brands/
+│   │   └── Brands.vue
+│   │
+│   ├── stock/
+│   │   ├── StockIn.vue
+│   │   ├── StockOut.vue
+│   │   └── StockHistory.vue
+│   │
+│   └── reports/
+│       ├── StockReport.vue
+│       ├── TransactionReport.vue
+│       └── ProfitReport.vue
+│
+├── services/
+│   ├── api.js
+│   ├── productService.js
+│   ├── categoryService.js
+│   ├── brandService.js
+│   ├── stockService.js
+│   └── reportService.js
+│
+├── stores/
+│   └── auth.js
+│
+├── router/
+│   └── index.js
+│
+├── utils/
+│   ├── formatCurrency.js
+│   └── formatDate.js
+│
+├── App.vue
+├── main.js
+└── style.css
+Urutan pengerjaan yang paling masuk akal sekarang
+
+Kita sudah sampai Product Management, jadi jangan loncat-loncat seperti developer yang baru minum kopi tiga gelas.
+
+Urutannya:
+
+✅ 1. Vue + Vite
+✅ 2. Axios
+✅ 3. Router
+✅ 4. Tailwind
+✅ 5. Lucide
+✅ 6. Struktur folder
+✅ 7. Axios instance
+✅ 8. Authentication setup
+✅ 9. Login
+✅ 10. Protected Route
+✅ 11. Main Layout
+✅ 12. Dashboard
+🔵 13. Product Management ← KITA DI SINI
+⬜ 14. Category Management
+⬜ 15. Brand Management
+⬜ 16. Stock Management
+⬜ 17. Stock History
+⬜ 18. Reports
+⬜ 19. Loading & Error State
+⬜ 20. Final UI Polish
+
+Catatan kecil: PRD final tadi menyebut "Laporan" sebagai satu fitur, tetapi implementasi UI yang kita turunkan dari requirement tersebut secara logis menjadi 3 halaman laporan: Stok, Transaksi, dan Profit. Jadi total 11 halaman utama adalah breakdown implementasi dari PRD, bukan penambahan fitur baru.
+
+Untuk **ElectroStock**, saya sarankan jangan dibuat seperti aplikasi kasir yang penuh warna. Karena ini aplikasi **inventory management toko elektronik**, desainnya lebih cocok kalau terlihat **modern, profesional, bersih, dan sedikit tech-oriented**.
+
+Saya akan arahkan desainnya seperti dashboard SaaS modern. Manusia ternyata memang suka membuat tabel untuk mengelola barang, lalu memberi tabel itu bayangan dan sudut membulat supaya terasa canggih.
+
+# 🎨 1. Kombinasi warna utama
+
+Saya paling menyarankan kombinasi **Navy + Blue + Slate + White**.
+
+### Palet utama
+
+| Elemen        | Warna        | Hex       |
+| ------------- | ------------ | --------- |
+| Primary       | 🔵 Deep Blue | `#2563EB` |
+| Primary Dark  | 🔷 Navy Blue | `#1E3A8A` |
+| Background    | ⚪ Soft Gray  | `#F8FAFC` |
+| Surface/Card  | ⚪ White      | `#FFFFFF` |
+| Text utama    | ⚫ Slate 900  | `#0F172A` |
+| Text sekunder | 🔘 Slate 500 | `#64748B` |
+| Border        | 🔘 Slate 200 | `#E2E8F0` |
+| Success       | 🟢 Emerald   | `#10B981` |
+| Warning       | 🟡 Amber     | `#F59E0B` |
+| Danger        | 🔴 Red       | `#EF4444` |
+| Info          | 🔵 Cyan      | `#06B6D4` |
+
+### Gambaran penggunaannya
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ NAVBAR / TOPBAR                              🔔   Admin     │
+├───────────────┬─────────────────────────────────────────────┤
+│               │                                             │
+│  ELECTRO      │   Dashboard                                │
+│  STOCK        │                                             │
+│               │   ┌─────────┐ ┌─────────┐ ┌─────────┐     │
+│  Dashboard    │   │ Produk  │ │  Stok   │ │ Menipis │     │
+│  Produk       │   │  128    │ │  1,240  │ │   12    │     │
+│  Kategori     │   └─────────┘ └─────────┘ └─────────┘     │
+│  Brand        │                                             │
+│               │   ┌─────────────────────────────────────┐   │
+│  STOCK        │   │         Grafik / Aktivitas          │   │
+│  Stock In     │   │                                     │   │
+│  Stock Out    │   │                                     │   │
+│  Riwayat      │   └─────────────────────────────────────┘   │
+│               │                                             │
+│  REPORT       │                                             │
+│  Stok         │                                             │
+│  Transaksi    │                                             │
+│  Profit       │                                             │
+│               │                                             │
+└───────────────┴─────────────────────────────────────────────┘
+```
+
+---
+
+# 🎯 2. Warna jangan digunakan semuanya sekaligus
+
+Ini penting.
+
+**Blue adalah warna utama**, bukan setiap elemen harus biru.
+
+Contohnya:
+
+### Button utama
+
+```text
+┌──────────────────────┐
+│  + Tambah Produk     │
+└──────────────────────┘
+```
+
+`#2563EB`
+
+### Button secondary
+
+```text
+┌──────────────────────┐
+│  Batal               │
+└──────────────────────┘
+```
+
+`#F1F5F9`
+
+### Status stok
+
+**Aman**
+
+```text
+● Aman
+```
+
+`#10B981`
+
+**Menipis**
+
+```text
+● Menipis
+```
+
+`#F59E0B`
+
+**Habis**
+
+```text
+● Habis
+```
+
+`#EF4444`
+
+Jadi warna mempunyai **fungsi**, bukan sekadar dekorasi.
+
+---
+
+# 🖥️ 3. Model desain yang saya rekomendasikan
+
+Gunakan gaya:
+
+## **Modern SaaS Dashboard**
+
+Karakteristiknya:
+
+* Sidebar tetap
+* Topbar sederhana
+* Card putih
+* Background abu-abu sangat muda
+* Border tipis
+* Border radius sekitar `12px`
+* Shadow sangat halus
+* Banyak whitespace
+* Icon Lucide
+* Typography modern
+* Tabel bersih
+* Button tidak terlalu besar
+* Tidak menggunakan gradient berlebihan
+
+Kurang lebih seperti perpaduan dashboard:
+
+**Linear + Vercel + modern admin dashboard**
+
+Bukan:
+
+```text
+❌ warna-warni
+❌ gradient di mana-mana
+❌ shadow tebal
+❌ tombol raksasa
+❌ card dengan 17 efek glow
+❌ setiap menu punya warna sendiri
+```
+
+ElectroStock itu aplikasi inventory, bukan dashboard pesawat luar angkasa NASA.
+
+---
+
+# 🧭 4. Sidebar
+
+Sidebar sebaiknya menjadi elemen visual utama.
+
+### Kondisi normal
+
+```text
+┌──────────────────────┐
+│                      │
+│  ⚡ ELECTROSTOCK     │
+│                      │
+│  GENERAL             │
+│                      │
+│  ▣ Dashboard         │
+│  ▣ Produk            │
+│  ▣ Kategori          │
+│  ▣ Brand             │
+│                      │
+│  INVENTORY           │
+│                      │
+│  ↓ Stock In          │
+│  ↑ Stock Out         │
+│  ≡ Riwayat Stok      │
+│                      │
+│  REPORTS             │
+│                      │
+│  ◉ Laporan Stok      │
+│  ◉ Transaksi         │
+│  ◉ Profit            │
+│                      │
+│                      │
+│  ──────────────────  │
+│  👤 Admin            │
+│  Logout              │
+└──────────────────────┘
+```
+
+### Warna
+
+Sidebar:
+
+```css
+background: #FFFFFF;
+border-right: 1px solid #E2E8F0;
+```
+
+Menu aktif:
+
+```css
+background: #EFF6FF;
+color: #2563EB;
+```
+
+Icon aktif:
+
+```css
+color: #2563EB;
+```
+
+Menu biasa:
+
+```css
+color: #64748B;
+```
+
+---
+
+# 📊 5. Dashboard
+
+Dashboard jangan langsung dijejali tabel.
+
+Urutannya:
+
+```text
+Dashboard
+│
+├── Greeting
+│
+├── Summary Cards
+│
+├── Stock Overview
+│
+├── Recent Transactions
+│
+└── Low Stock Products
+```
+
+Contoh:
+
+```text
+Dashboard
+Good morning, Admin 👋
+Berikut ringkasan inventory ElectroStock hari ini.
+
+┌────────────────┐ ┌────────────────┐ ┌────────────────┐ ┌────────────────┐
+│ TOTAL PRODUK   │ │ TOTAL STOK     │ │ STOK MENIPIS   │ │ STOK HABIS     │
+│                │ │                │ │                │ │                │
+│ 128            │ │ 1,240         │ │ 12             │ │ 4              │
+│ +8 bulan ini   │ │ Unit          │ │ Perlu dicek    │ │ Perlu restock  │
+└────────────────┘ └────────────────┘ └────────────────┘ └────────────────┘
+```
+
+### Card
+
+Gunakan:
+
+```css
+background: white;
+border: 1px solid #E2E8F0;
+border-radius: 16px;
+```
+
+Jangan gunakan shadow terlalu kuat.
+
+```css
+box-shadow: 0 1px 3px rgba(...);
+```
+
+Bahkan shadow tipis saja sudah cukup.
+
+---
+
+# 📦 6. Halaman Products
+
+Ini kemungkinan akan menjadi halaman paling sering digunakan.
+
+Saya sarankan:
+
+```text
+Products
+Kelola seluruh produk elektronik.
+
+                                    [+ Tambah Produk]
+
+┌─────────────────────────────────────────────────────────────┐
+│ 🔍 Cari produk...     Kategori ▼   Brand ▼   Status ▼      │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ Produk       │ Kategori │ Harga │ Stok │ Status │ Action   │
+├─────────────────────────────────────────────────────────────┤
+│ 📺 Samsung   │ TV       │ 5 jt  │ 30   │ ● Aman │ ⋮        │
+│ 📱 Xiaomi    │ HP       │ 3 jt  │ 12   │ ● Aman │ ⋮        │
+│ 🔊 JBL       │ Audio    │ 2 jt  │ 3    │ ● Tipis│ ⋮        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Product image
+
+Karena kamu memang membutuhkan gambar untuk identifikasi model produk, jangan dibuat terlalu kecil.
+
+Misalnya:
+
+```text
+┌──────┐
+│      │
+│ 📺   │  Samsung Smart TV 43
+│      │  TV-SAM-001
+└──────┘
+```
+
+Ukuran sekitar:
+
+```text
+48 × 48 px
+```
+
+dengan:
+
+```css
+border-radius: 8px;
+object-fit: cover;
+```
+
+---
+
+# 📝 7. Form Product
+
+Untuk form tambah/edit produk, gunakan **modal besar atau side drawer**.
+
+Saya lebih menyarankan **modal besar**.
+
+```text
+┌─────────────────────────────────────────────────────┐
+│ Tambah Produk                                   ×   │
+│ Tambahkan informasi produk baru                     │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│ Informasi Dasar                                     │
+│                                                     │
+│ Nama Produk                                         │
+│ [ Samsung Smart TV 43                         ]     │
+│                                                     │
+│ Kode Produk                  Tipe / Model           │
+│ [ TV-SAM-001 ]              [ UA43T6500 ]           │
+│                                                     │
+│ Kategori                     Brand                  │
+│ [ Televisi ▼ ]               [ Samsung ▼ ]          │
+│                                                     │
+│ Harga Beli                    Harga Jual            │
+│ [ Rp 4.000.000 ]             [ Rp 5.000.000 ]      │
+│                                                     │
+│ Minimum Stock                Satuan                 │
+│ [ 3 ]                         [ unit ▼ ]            │
+│                                                     │
+│ Gambar Produk                                       │
+│ ┌───────────────────────────────────────────────┐   │
+│ │              Upload gambar                   │   │
+│ └───────────────────────────────────────────────┘   │
+│                                                     │
+│ Deskripsi                                           │
+│ [                                             ]     │
+│                                                     │
+├─────────────────────────────────────────────────────┤
+│                         [Batal] [Simpan Produk]     │
+└─────────────────────────────────────────────────────┘
+```
+
+Dan sesuai business rule kita:
+
+**Jangan masukkan field stock ke form Product.**
+
+Stock hanya berubah melalui:
+
+```text
+Stock In
+Stock Out
+```
+
+---
+
+# 📥 8. Stock In / Stock Out
+
+Dua halaman ini harus terasa seperti **transaction form**, bukan CRUD biasa.
+
+Misalnya Stock In:
+
+```text
+Stock In
+
+Tambahkan stok baru ke inventory.
+
+┌──────────────────────────────────────────────┐
+│ Produk                                       │
+│ [ Samsung Smart TV 43 ▼ ]                   │
+│                                              │
+│ Stok Saat Ini                                │
+│ 30 unit                                      │
+│                                              │
+│ Jumlah Masuk                                 │
+│ [ 10 ]                                       │
+│                                              │
+│ Harga Beli                                   │
+│ [ Rp 4.000.000 ]                             │
+│                                              │
+│ Tanggal Transaksi                            │
+│ [ 21 September 2026 ]                        │
+│                                              │
+│ Keterangan                                   │
+│ [ Pembelian supplier ... ]                   │
+│                                              │
+│               [ Simpan Stock In ]            │
+└──────────────────────────────────────────────┘
+```
+
+Stock Out bisa memakai struktur yang sama.
+
+Tetapi warnanya sedikit dibedakan:
+
+**Stock In**
+
+```text
+Primary → Blue
+Icon → ArrowDownToLine
+```
+
+**Stock Out**
+
+```text
+Primary → Orange/Amber
+Icon → ArrowUpFromLine
+```
+
+Jangan sampai seluruh halaman berubah jadi oranye. Cukup aksen.
+
+---
+
+# 📋 9. Stock History
+
+Ini sebaiknya sangat tabel-oriented.
+
+```text
+Stock History
+
+┌─────────────────────────────────────────────────────────────┐
+│ 🔍 Search   Type ▼   Date ▼                                │
+└─────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────┐
+│ Date       │ Product     │ Type │ Qty │ Price     │ Admin    │
+├───────────────────────────────────────────────────────────────┤
+│ 21 Sep     │ Samsung TV  │ OUT  │ -2  │ 5.000.000 │ Admin    │
+│ 20 Sep     │ LG TV       │ IN   │ +10 │ 4.000.000 │ Admin    │
+│ 19 Sep     │ Sony TV     │ IN   │ +5  │ 4.500.000 │ Admin    │
+└───────────────────────────────────────────────────────────────┘
+```
+
+IN:
+
+```text
++10
+```
+
+dengan warna hijau.
+
+OUT:
+
+```text
+-2
+```
+
+dengan warna merah/oranye.
+
+---
+
+# 📈 10. Report
+
+Untuk report, desain harus lebih serius.
+
+### Stock Report
+
+```text
+Stock Report
+
+[ September 2026 ▼ ]
+
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│ Total Produk │ │ Total Stok   │ │ Stok Menipis │
+│ 128          │ │ 1,240        │ │ 12           │
+└──────────────┘ └──────────────┘ └──────────────┘
+
+────────────────────────────────────────
+
+Product Stock Overview
+
+[ tabel ]
+```
+
+### Profit Report
+
+Ini yang bisa dibuat paling menarik.
+
+```text
+Profit Report
+
+September 2026
+
+┌────────────────┐ ┌────────────────┐ ┌────────────────┐
+│ TOTAL PENJUALAN│ │ MODAL          │ │ PROFIT         │
+│                │ │                │ │                │
+│ Rp 82.500.000  │ │ Rp 65.000.000  │ │ Rp 17.500.000  │
+└────────────────┘ └────────────────┘ └────────────────┘
+
+────────────────────────────────────────────
+
+Profit Overview
+
+       ╭──────╮
+       │      ╲
+       │       ╲____
+       │            ╲
+       └────────────────
+
+────────────────────────────────────────────
+
+Product Profit
+```
+
+Warna profit:
+
+```text
+Revenue → Blue
+Cost → Slate
+Profit → Emerald
+```
+
+---
+
+# 🔤 11. Typography
+
+Gunakan font modern.
+
+Saya sarankan:
+
+## Inter
+
+Untuk seluruh aplikasi:
+
+```css
+font-family: 'Inter', sans-serif;
+```
+
+Hierarkinya:
+
+```text
+Dashboard
+32px / 700
+
+Section title
+20px / 600
+
+Card number
+24px / 700
+
+Body
+14px / 400
+
+Table
+14px / 400
+
+Small text
+12px / 400
+```
+
+Jangan memakai font berbeda untuk setiap halaman. Itu bukan kreativitas, itu typographic identity crisis.
+
+---
+
+# 🔲 12. Border Radius
+
+Saya sarankan konsisten:
+
+```text
+Button       8px
+Input        8px
+Badge        9999px
+Card         12px
+Modal        16px
+Image        8px
+```
+
+Contoh:
+
+```css
+.card {
+    border-radius: 12px;
+}
+
+.button {
+    border-radius: 8px;
+}
+
+.badge {
+    border-radius: 9999px;
+}
+```
+
+---
+
+# 🖱️ 13. Button
+
+### Primary
+
+```text
+┌────────────────────────┐
+│ ＋ Tambah Produk       │
+└────────────────────────┘
+```
+
+```text
+background #2563EB
+text      #FFFFFF
+```
+
+### Secondary
+
+```text
+background #F8FAFC
+border     #E2E8F0
+text       #334155
+```
+
+### Danger
+
+Untuk delete:
+
+```text
+background #FEF2F2
+text       #DC2626
+```
+
+Jangan membuat tombol Delete merah solid sebesar tombol Simpan. Delete adalah aksi destruktif, bukan kepala pemerintahan.
+
+---
+
+# 🌗 14. Dark mode?
+
+Untuk **versi pertama ElectroStock**, saya justru menyarankan:
+
+### Light mode terlebih dahulu.
+
+Alasannya sederhana:
+
+```text
+Inventory
+   ↓
+Table
+   ↓
+Data
+   ↓
+Readability
+```
+
+Light dashboard dengan putih + slate akan sangat mudah dibaca.
+
+Dark mode bisa menjadi **future development** setelah sistem utama selesai.
+
+---
+
+# 🧩 15. Identitas visual ElectroStock
+
+Saya akan membentuk identitas seperti ini:
+
+```text
+                    ELECTROSTOCK
+             Inventory Management System
+
+
+Primary        ██████████  #2563EB
+Dark           ██████████  #1E3A8A
+Background     ██████████  #F8FAFC
+Surface        ██████████  #FFFFFF
+Text           ██████████  #0F172A
+Secondary      ██████████  #64748B
+Border         ██████████  #E2E8F0
+Success        ██████████  #10B981
+Warning        ██████████  #F59E0B
+Danger         ██████████  #EF4444
+```
+
+### Keseluruhan style
+
+**Modern + Minimal + Professional + Tech**
+
+Bukan desain yang mencoba terlihat futuristik dengan 400 gradient, tetapi desain yang membuat admin bisa membuka aplikasi setiap hari dan langsung tahu **stok apa yang tersedia, apa yang menipis, transaksi apa yang terjadi, dan berapa profit bulan ini.**
+
+Untuk implementasi Vue + Tailwind kita, kombinasi ini juga enak sekali karena hampir semuanya bisa langsung diterjemahkan menjadi utility class Tailwind.
