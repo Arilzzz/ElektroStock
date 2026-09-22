@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import {
   LayoutDashboard,
   Package,
@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   User,
+  ArrowLeft,
 } from 'lucide-vue-next'
 
 import { useRouter, useRoute } from 'vue-router'
@@ -31,6 +32,30 @@ const closeMobileMenu = () => {
 
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+const canGoBack = computed(() => {
+  return route.path !== '/dashboard' && route.path !== '/'
+})
+
+const currentPageTitle = computed(() => {
+  const p = route.path
+  if (p.startsWith('/products')) return 'Produk'
+  if (p.startsWith('/categories')) return 'Kategori'
+  if (p.startsWith('/brands')) return 'Brand'
+  if (p.startsWith('/stock/in')) return 'Stock In'
+  if (p.startsWith('/stock/out')) return 'Stock Out'
+  if (p.startsWith('/stock/history')) return 'Riwayat Stok'
+  if (p.startsWith('/reports')) return 'Laporan'
+  return 'Dashboard'
+})
+
+const goBack = () => {
+  if (window.history.length > 1 && window.history.state?.back) {
+    router.back()
+  } else {
+    router.push('/dashboard')
+  }
 }
 
 const handleLogout = async () => {
@@ -141,19 +166,36 @@ const navLinks = [
 
     <!-- Main Content Area -->
     <div class="flex-1 md:ml-64 flex flex-col min-w-0 min-h-screen">
-      <!-- Topbar with Hamburger on Mobile -->
-      <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 md:px-8 backdrop-blur-xs">
-        <div class="flex items-center gap-3">
+      <!-- Topbar with Hamburger & Back button on Mobile -->
+      <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-3.5 sm:px-6 md:px-8 backdrop-blur-xs">
+        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+          <!-- Mobile Back Button (1-tap return without opening sidebar) -->
+          <button
+            v-if="canGoBack"
+            @click="goBack"
+            type="button"
+            class="md:hidden inline-flex items-center gap-1 rounded-xl bg-blue-50 border border-blue-200/80 px-2.5 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 active:bg-blue-200 active:scale-95 transition shrink-0 shadow-2xs"
+            title="Kembali ke halaman sebelumnya"
+            aria-label="Kembali"
+          >
+            <ArrowLeft :size="15" />
+            <span class="text-[11px] sm:text-xs">Kembali</span>
+          </button>
+
+          <!-- Toggle Mobile Menu Button -->
           <button
             @click="toggleMobileMenu"
-            class="md:hidden rounded-lg p-2 text-slate-600 hover:bg-slate-100 active:bg-slate-200 focus:outline-none"
+            class="md:hidden rounded-xl p-2 text-slate-600 hover:bg-slate-100 active:bg-slate-200 focus:outline-none transition shrink-0"
             aria-label="Buka Menu"
           >
-            <Menu :size="22" />
+            <Menu :size="20" />
           </button>
-          <div>
-            <h2 class="text-base md:text-lg font-bold text-slate-800">
-              ElectroStock
+
+          <!-- Page Title / Brand -->
+          <div class="min-w-0">
+            <h2 class="text-sm sm:text-base md:text-lg font-bold text-slate-800 truncate">
+              <span class="hidden md:inline">ElectroStock</span>
+              <span class="md:hidden">{{ currentPageTitle }}</span>
             </h2>
           </div>
         </div>

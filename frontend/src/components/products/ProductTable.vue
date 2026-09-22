@@ -1,5 +1,9 @@
 <script setup>
+import { ref } from 'vue'
 import { formatCurrency } from '../../utils/formatCurrency'
+import { getProductImageUrl } from '../../utils/productImage'
+import ImageLightboxModal from '../common/ImageLightboxModal.vue'
+import { Maximize2 } from 'lucide-vue-next'
 
 defineProps({
   products: {
@@ -13,6 +17,19 @@ defineProps({
 })
 
 const emit = defineEmits(['detail', 'edit', 'delete'])
+
+const previewImage = ref(null)
+
+const openPreview = (product) => {
+  const url = getProductImageUrl(product)
+  if (url) {
+    previewImage.value = {
+      src: url,
+      title: product.name,
+      subtitle: `${product.code || ''} ${product.type_model ? '• ' + product.type_model : ''} ${product.brand?.name ? '(' + product.brand.name + ')' : ''}`,
+    }
+  }
+}
 
 const getStatus = (product) => {
   if (product.stock === 0) {
@@ -62,13 +79,22 @@ const getStatus = (product) => {
             <!-- Name & Code & Photo -->
             <td class="px-4 py-3.5">
               <div class="flex items-center gap-3">
-                <div class="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-medium">
-                  <img
-                    v-if="product.image_url || product.image"
-                    :src="product.image_url || ('/storage/' + product.image)"
-                    :alt="product.name"
-                    class="h-full w-full object-cover"
-                  />
+                <div
+                  class="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center text-xs text-slate-400 font-medium group/thumb select-none"
+                  :class="getProductImageUrl(product) ? 'cursor-pointer hover:border-blue-500 hover:ring-2 hover:ring-blue-100 transition' : ''"
+                  @click="openPreview(product)"
+                  :title="getProductImageUrl(product) ? 'Klik untuk perbesar / fullscreen' : 'Belum ada foto'"
+                >
+                  <template v-if="getProductImageUrl(product)">
+                    <img
+                      :src="getProductImageUrl(product)"
+                      :alt="product.name"
+                      class="h-full w-full object-cover transition duration-200 group-hover/thumb:scale-110"
+                    />
+                    <div class="absolute inset-0 bg-black/35 opacity-0 group-hover/thumb:opacity-100 transition flex items-center justify-center text-white">
+                      <Maximize2 :size="13" />
+                    </div>
+                  </template>
                   <span v-else>📷</span>
                 </div>
                 <div>
@@ -171,5 +197,14 @@ const getStatus = (product) => {
         </tbody>
       </table>
     </div>
+
+    <!-- Image Lightbox Modal for Fullscreen View -->
+    <ImageLightboxModal
+      v-if="previewImage"
+      :src="previewImage.src"
+      :title="previewImage.title"
+      :subtitle="previewImage.subtitle"
+      @close="previewImage = null"
+    />
   </div>
 </template>

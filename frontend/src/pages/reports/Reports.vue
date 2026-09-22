@@ -132,28 +132,58 @@ onMounted(async () => {
       </p>
     </div>
 
-    <!-- Navigation Tabs (Scrollable on mobile) -->
-    <div class="flex gap-2 border-b border-slate-200 overflow-x-auto pb-0.5">
+    <!-- Navigation Tabs (3-Column Segmented Control, Fully Visible simultaneously on Mobile & Desktop) -->
+    <div class="grid grid-cols-3 gap-1.5 sm:gap-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 shadow-2xs">
       <button
         @click="switchTab('stock')"
-        class="border-b-2 px-4 py-2.5 text-xs sm:text-sm font-bold whitespace-nowrap transition"
-        :class="activeTab === 'stock' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'"
+        type="button"
+        class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 px-1.5 sm:px-3 rounded-xl transition-all text-center select-none"
+        :class="
+          activeTab === 'stock'
+            ? 'bg-white text-blue-600 shadow-xs border border-slate-200/70 font-bold'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 border border-transparent font-medium'
+        "
       >
-        📦 Kondisi Stok
+        <span class="text-sm sm:text-base shrink-0">📦</span>
+        <span class="text-[11px] sm:text-xs md:text-sm font-bold leading-tight">
+          <span class="block sm:inline">Kondisi</span>
+          <span class="sm:ml-1">Stok</span>
+        </span>
       </button>
+
       <button
         @click="switchTab('transactions')"
-        class="border-b-2 px-4 py-2.5 text-xs sm:text-sm font-bold whitespace-nowrap transition"
-        :class="activeTab === 'transactions' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'"
+        type="button"
+        class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 px-1.5 sm:px-3 rounded-xl transition-all text-center select-none"
+        :class="
+          activeTab === 'transactions'
+            ? 'bg-white text-blue-600 shadow-xs border border-slate-200/70 font-bold'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 border border-transparent font-medium'
+        "
       >
-        🔄 Riwayat Transaksi Mutasi
+        <span class="text-sm sm:text-base shrink-0">🔄</span>
+        <span class="text-[11px] sm:text-xs md:text-sm font-bold leading-tight">
+          <span class="block sm:inline">Riwayat</span>
+          <span class="sm:ml-1">Transaksi</span>
+          <span class="hidden md:inline"> Mutasi</span>
+        </span>
       </button>
+
       <button
         @click="switchTab('profit')"
-        class="border-b-2 px-4 py-2.5 text-xs sm:text-sm font-bold whitespace-nowrap transition"
-        :class="activeTab === 'profit' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'"
+        type="button"
+        class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 px-1.5 sm:px-3 rounded-xl transition-all text-center select-none"
+        :class="
+          activeTab === 'profit'
+            ? 'bg-white text-blue-600 shadow-xs border border-slate-200/70 font-bold'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 border border-transparent font-medium'
+        "
       >
-        💰 Profit Operasional
+        <span class="text-sm sm:text-base shrink-0">💰</span>
+        <span class="text-[11px] sm:text-xs md:text-sm font-bold leading-tight">
+          <span class="block sm:inline">Profit</span>
+          <span class="sm:ml-1">Operasional</span>
+        </span>
       </button>
     </div>
 

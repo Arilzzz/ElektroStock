@@ -1,6 +1,10 @@
 <script setup>
+import { ref } from 'vue'
 import AppModal from '../common/AppModal.vue'
+import ImageLightboxModal from '../common/ImageLightboxModal.vue'
 import { formatCurrency } from '../../utils/formatCurrency'
+import { getProductImageUrl } from '../../utils/productImage'
+import { Maximize2 } from 'lucide-vue-next'
 
 const props = defineProps({
   product: {
@@ -10,6 +14,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
+
+const showImageLightbox = ref(false)
 
 const getStatusBadge = (product) => {
   if (!product) return { text: '-', color: 'bg-slate-100 text-slate-700' }
@@ -28,13 +34,25 @@ const getStatusBadge = (product) => {
     <div v-if="product" class="space-y-6">
       <div class="flex flex-col md:flex-row gap-6 items-start">
         <!-- Product Image -->
-        <div class="w-full md:w-48 h-48 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
-          <img
-            v-if="product.image_url || product.image"
-            :src="product.image_url || ('/storage/' + product.image)"
-            :alt="product.name"
-            class="w-full h-full object-cover"
-          />
+        <div
+          class="relative w-full md:w-48 h-48 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0 group select-none"
+          :class="getProductImageUrl(product) ? 'cursor-pointer hover:border-blue-500 hover:ring-2 hover:ring-blue-100 transition' : ''"
+          @click="getProductImageUrl(product) ? (showImageLightbox = true) : null"
+        >
+          <template v-if="getProductImageUrl(product)">
+            <img
+              :src="getProductImageUrl(product)"
+              :alt="product.name"
+              class="w-full h-full object-cover transition duration-200 group-hover:scale-105"
+            />
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center text-white gap-1 p-2 text-center">
+              <Maximize2 :size="20" />
+              <span class="text-[11px] font-semibold">Klik untuk perbesar</span>
+            </div>
+            <div class="absolute bottom-2 right-2 bg-slate-900/60 backdrop-blur-xs text-white p-1 rounded-md text-[10px] sm:hidden">
+              <Maximize2 :size="12" />
+            </div>
+          </template>
           <span v-else class="text-xs text-slate-400 font-medium">Tidak ada gambar</span>
         </div>
 
@@ -116,4 +134,13 @@ const getStatusBadge = (product) => {
       </div>
     </template>
   </AppModal>
+
+  <!-- Image Lightbox Modal for Fullscreen View -->
+  <ImageLightboxModal
+    v-if="showImageLightbox && getProductImageUrl(product)"
+    :src="getProductImageUrl(product)"
+    :title="product.name"
+    :subtitle="`${product.code || ''} ${product.type_model ? '• ' + product.type_model : ''} ${product.brand?.name ? '(' + product.brand.name + ')' : ''}`"
+    @close="showImageLightbox = false"
+  />
 </template>
