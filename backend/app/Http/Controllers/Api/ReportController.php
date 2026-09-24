@@ -174,9 +174,12 @@ class ReportController extends Controller
     {
         $year = $request->integer('year', now()->year);
 
+        $driver = DB::connection()->getDriverName();
+        $monthExpr = $driver === 'pgsql' ? 'EXTRACT(MONTH FROM transaction_date)' : 'MONTH(transaction_date)';
+
         $monthlyData = StockTransaction::query()
             ->selectRaw("
-                MONTH(transaction_date) as month,
+                {$monthExpr} as month,
                 SUM(
                     CASE
                         WHEN type = 'OUT'
@@ -193,14 +196,14 @@ class ReportController extends Controller
                 ) as cost
             ")
             ->whereYear('transaction_date', $year)
-            ->groupByRaw('MONTH(transaction_date)')
-            ->orderByRaw('MONTH(transaction_date)')
+            ->groupByRaw($monthExpr)
+            ->orderByRaw($monthExpr)
             ->get();
 
         $months = collect(range(1, 12))->map(function ($month) use (
             $monthlyData
         ) {
-            $data = $monthlyData->firstWhere('month', $month);
+            $data = $monthlyData->first(fn ($item) => (int) $item->month === (int) $month);
 
             $revenue = (float) ($data->revenue ?? 0);
             $cost = (float) ($data->cost ?? 0);
