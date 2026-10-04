@@ -35,4 +35,4 @@ RUN chmod -R 775 storage bootstrap/cache
 
 ENV SERVER_NAME=:80
 
-CMD ["sh", "-c", "frankenphp php-server -r public/ --listen 0.0.0.0:${PORT:-0.0.0.0}"]
+CMD ["sh", "-c", "frankenphp php-server -r public/ --listen 0.0.0.0:${PORT:-10000}"]
