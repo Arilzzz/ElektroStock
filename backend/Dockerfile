@@ -2,8 +2,9 @@ FROM dunglas/frankenphp:php8.3
 
 WORKDIR /app
 
-# Install PHP extensions yang dibutuhkan Laravel + MySQL
+# Install PHP extensions yang dibutuhkan Laravel + PostgreSQL & MySQL
 RUN install-php-extensions \
+    pdo_pgsql \
     pdo_mysql \
     mbstring \
     bcmath \
@@ -38,5 +39,5 @@ RUN chmod -R 775 storage bootstrap/cache
 # Laravel harus dilayani dari folder public
 ENV SERVER_NAME=:80
 
-# Vercel memberikan PORT secara otomatis
-CMD ["sh", "-c", "frankenphp php-server -r public/ --listen 0.0.0.0:${PORT:-80}"]
+# Render menyediakan PORT secara otomatis (default 10000)
+CMD ["sh", "-c", "php artisan config:clear && frankenphp php-server -r public/ --listen 0.0.0.0:${PORT:-10000}"]
