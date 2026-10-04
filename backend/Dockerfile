@@ -1,11 +1,11 @@
 FROM dunglas/frankenphp:php8.3
 
+RUN command -v frankenphp && ls -l "$(command -v frankenphp)"
+
 WORKDIR /app
 
-# Install PHP extensions yang dibutuhkan Laravel + PostgreSQL & MySQL
 RUN install-php-extensions \
     pdo_pgsql \
-    pdo_mysql \
     mbstring \
     bcmath \
     exif \
@@ -14,21 +14,18 @@ RUN install-php-extensions \
     zip \
     opcache
 
-# Copy Composer dari image Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy seluruh project Laravel
 COPY . .
 
-# Install dependency production
 RUN composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction \
     --prefer-dist
 
-# Permission Laravel
-RUN mkdir -p storage/framework/cache \
+RUN mkdir -p \
+    storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
     storage/logs \
@@ -36,8 +33,6 @@ RUN mkdir -p storage/framework/cache \
 
 RUN chmod -R 775 storage bootstrap/cache
 
-# Laravel harus dilayani dari folder public
 ENV SERVER_NAME=:80
 
-# Render menyediakan PORT secara otomatis (default 10000)
-CMD ["sh", "-c", "php artisan config:clear && frankenphp php-server -r public/ --listen 0.0.0.0:${PORT:-10000}"]
+CMD ["sh", "-c", "frankenphp php-server -r public/ --listen 0.0.0.0:${PORT:-0.0.0.0}"]
