@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\StockTransaction;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -23,12 +24,20 @@ class DatabaseSeeder extends Seeder
         Product::unguard();
         StockTransaction::unguard();
 
+        if (DB::getDriverName() === 'pgsql') {
+            foreach (['users', 'brands', 'categories', 'products', 'stock_transactions'] as $table) {
+                if (DB::table($table)->exists()) {
+                    DB::statement("SELECT setval(pg_get_serial_sequence('{$table}', 'id'), coalesce(max(id), 1)) FROM {$table};");
+                }
+            }
+        }
+
         // 1. Users
         $user1 = User::updateOrCreate(
-            ['email' => 'admin@electrostock.test'],
+            ['email' => 'admin@lilikelektronik.test'],
             [
                 'id' => 1,
-                'name' => 'Admin ElectroStock',
+                'name' => 'Admin Lilik Elektronik',
                 'password' => Hash::make('admin12345'),
             ]
         );
@@ -37,41 +46,64 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@gmail.com'],
             [
                 'id' => 2,
-                'name' => 'Admin ElectroStock',
+                'name' => 'Admin Lilik Elektronik',
                 'password' => Hash::make('admin12345'),
             ]
         );
 
         // 2. Brands
         $brands = [
-            ['id' => 2, 'name' => 'Samsung', 'description' => 'Brand elektronik Samsung'],
-            ['id' => 3, 'name' => 'LG', 'description' => 'Brand elektronik LG'],
-            ['id' => 4, 'name' => 'Polytron', 'description' => 'Brand elektronik Polytron'],
+            ['name' => 'Polytron', 'description' => 'Brand elektronik Polytron'],
+            ['name' => 'Coocaa', 'description' => 'Brand smart TV & elektronik Coocaa'],
+            ['name' => 'LG', 'description' => 'Brand elektronik LG'],
+            ['name' => 'Samsung', 'description' => 'Brand elektronik Samsung'],
+            ['name' => 'Aqua', 'description' => 'Brand elektronik rumah tangga Aqua Japan'],
+            ['name' => 'Maspion', 'description' => 'Brand peralatan rumah tangga Maspion'],
+            ['name' => 'Miyako', 'description' => 'Brand peralatan dapur & rumah tangga Miyako'],
+            ['name' => 'Philips', 'description' => 'Brand elektronik & pencahayaan Philips'],
+            ['name' => 'Luby', 'description' => 'Brand lampu & alat listrik Luby'],
+            ['name' => 'Panasonic', 'description' => 'Brand elektronik Panasonic'],
+            ['name' => 'Sharp', 'description' => 'Brand elektronik Sharp'],
+            ['name' => 'Cosmos', 'description' => 'Brand peralatan rumah tangga Cosmos'],
+            ['name' => 'Sogo', 'description' => 'Brand peralatan elektronik Sogo'],
+            ['name' => 'Toshiba', 'description' => 'Brand elektronik Toshiba'],
+            ['name' => 'TD', 'description' => 'Brand peralatan elektronik & kipas TD'],
+            ['name' => 'Rinnai', 'description' => 'Brand kompor gas & peralatan dapur Rinnai'],
+            ['name' => 'Rinrei', 'description' => 'Brand perlengkapan elektronik & audio Rinrei'],
+            ['name' => 'WinnGas', 'description' => 'Brand regulator & perlengkapan gas Winn Gas'],
         ];
 
         foreach ($brands as $brand) {
-            Brand::updateOrCreate(['id' => $brand['id']], $brand);
+            Brand::firstOrCreate(['name' => $brand['name']], $brand);
         }
 
         // 3. Categories
         $categories = [
-            ['id' => 2, 'name' => 'Televisi', 'description' => 'Kategori produk televisi'],
-            ['id' => 3, 'name' => 'Kulkas', 'description' => 'Kategori produk Kulkas'],
-            ['id' => 4, 'name' => 'Mesin Cuci', 'description' => 'Kategori produk mesin cuci'],
-            ['id' => 5, 'name' => 'Kipas Angin', 'description' => 'Kategori produk kipas angin'],
+            ['name' => 'Kulkas', 'description' => 'Kategori produk kulkas / lemari es'],
+            ['name' => 'Mesin Cuci', 'description' => 'Kategori produk mesin cuci'],
+            ['name' => 'Setrika', 'description' => 'Kategori produk setrika listrik'],
+            ['name' => 'Televisi', 'description' => 'Kategori produk smart TV & televisi'],
+            ['name' => 'Kipas Angin', 'description' => 'Kategori produk kipas angin & pendingin'],
+            ['name' => 'Magic Com', 'description' => 'Kategori produk penanak nasi / magic com'],
+            ['name' => 'Regulator Gas', 'description' => 'Kategori produk regulator gas & perlengkapan kompor'],
+            ['name' => 'Blender', 'description' => 'Kategori produk blender & food processor'],
+            ['name' => 'Lampu', 'description' => 'Kategori produk lampu & pencahayaan LED'],
         ];
 
         foreach ($categories as $category) {
-            Category::updateOrCreate(['id' => $category['id']], $category);
+            Category::firstOrCreate(['name' => $category['name']], $category);
         }
 
         // 4. Products
+        $samsungBrand = Brand::where('name', 'Samsung')->first();
+        $tvCategory = Category::where('name', 'Televisi')->first();
+
         $product1 = Product::updateOrCreate(
             ['code' => 'TV-SAM-001'],
             [
                 'id' => 1,
-                'category_id' => 2,
-                'brand_id' => 2,
+                'category_id' => $tvCategory?->id ?? 2,
+                'brand_id' => $samsungBrand?->id ?? 2,
                 'name' => 'Samsung Smart TV 43',
                 'type_model' => 'UA43T6500',
                 'description' => 'Smart TV Samsung 43 inch',
@@ -180,6 +212,14 @@ class DatabaseSeeder extends Seeder
 
         foreach ($transactions as $tx) {
             StockTransaction::updateOrCreate(['id' => $tx['id']], $tx);
+        }
+
+        if (DB::getDriverName() === 'pgsql') {
+            foreach (['users', 'brands', 'categories', 'products', 'stock_transactions'] as $table) {
+                if (DB::table($table)->exists()) {
+                    DB::statement("SELECT setval(pg_get_serial_sequence('{$table}', 'id'), coalesce(max(id), 1)) FROM {$table};");
+                }
+            }
         }
 
         User::reguard();

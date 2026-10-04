@@ -56,7 +56,7 @@ onMounted(() => {
           </span>
         </h1>
         <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
-          Monitoring pergerakan stok, kondisi gudang, dan performa penjualan ElectroStock.
+          Monitoring pergerakan stok, kondisi gudang, dan performa penjualan Lilik Elektronik.
         </p>
       </div>
 

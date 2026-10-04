@@ -28,7 +28,7 @@ class AuthController extends Controller
             ]);
         }
 
-        $token = $user->createToken('electrostock-token')->plainTextToken;
+        $token = $user->createToken('lilik-elektronik-token')->plainTextToken;
 
         return response()->json([
             'success' => true,

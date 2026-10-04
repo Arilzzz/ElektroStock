@@ -19,6 +19,7 @@ import {
 import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '../stores/auth'
 import { logout as apiLogout } from '../services/authService'
+import logoImg from '../assets/Logo LEMS.png'
 
 const router = useRouter()
 const route = useRoute()
@@ -98,14 +99,21 @@ const navLinks = [
       :class="isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'"
     >
       <!-- Logo & Close Button (Mobile) -->
-      <div class="flex h-16 items-center justify-between border-b border-slate-100 px-5 md:px-6">
-        <div class="flex items-center gap-2.5">
-          <div class="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-lg shadow-sm">
-            ⚡
-          </div>
-          <div>
-            <h1 class="text-base font-bold text-slate-800 leading-tight">ElectroStock</h1>
-            <p class="text-[11px] text-slate-400 font-medium">Inventory System</p>
+      <div class="flex h-16 items-center justify-between border-b border-slate-100 px-4 md:px-5">
+        <div class="flex items-center gap-3 min-w-0">
+          <img
+            :src="logoImg"
+            alt="Lilik Elektronik Logo"
+            class="h-9 w-9 rounded-xl shadow-xs ring-1 ring-slate-900/5 object-contain shrink-0"
+          />
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 leading-tight">
+              <span class="text-sm font-extrabold text-slate-800 tracking-tight">Lilik</span>
+              <span class="text-sm font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 bg-clip-text text-transparent tracking-tight">Elektronik</span>
+            </div>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Stock Management</span>
+            </div>
           </div>
         </div>
         <button
@@ -149,8 +157,8 @@ const navLinks = [
             {{ user?.name ? user.name.charAt(0).toUpperCase() : 'A' }}
           </div>
           <div class="min-w-0 flex-1">
-            <p class="text-xs font-semibold text-slate-800 truncate">{{ user?.name || 'Admin ElectroStock' }}</p>
-            <p class="text-[11px] text-slate-400 truncate">{{ user?.email || 'admin@electrostock.test' }}</p>
+            <p class="text-xs font-semibold text-slate-800 truncate">{{ user?.name || 'Admin Lilik Elektronik' }}</p>
+            <p class="text-[11px] text-slate-400 truncate">{{ user?.email || 'admin@lilikelektronik.test' }}</p>
           </div>
         </div>
 
@@ -192,11 +200,37 @@ const navLinks = [
           </button>
 
           <!-- Page Title / Brand -->
-          <div class="min-w-0">
-            <h2 class="text-sm sm:text-base md:text-lg font-bold text-slate-800 truncate">
-              <span class="hidden md:inline">ElectroStock</span>
-              <span class="md:hidden">{{ currentPageTitle }}</span>
-            </h2>
+          <!-- Desktop Topbar Branding + Page Context -->
+          <div class="hidden md:flex items-center gap-3">
+            <img
+              :src="logoImg"
+              alt="Lilik Elektronik"
+              class="h-8 w-8 rounded-xl shadow-2xs ring-1 ring-slate-900/5 object-contain"
+            />
+            <div class="flex items-center gap-1.5 leading-none">
+              <span class="text-base font-black text-slate-800 tracking-tight">Lilik</span>
+              <span class="text-base font-black bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 bg-clip-text text-transparent tracking-tight">Elektronik</span>
+            </div>
+            <div class="h-4 w-px bg-slate-200 mx-1"></div>
+            <span class="text-sm font-semibold text-slate-600">{{ currentPageTitle }}</span>
+          </div>
+
+          <!-- Mobile Topbar Branding with Logo & Active Page -->
+          <div class="md:hidden flex items-center gap-2 min-w-0">
+            <img
+              :src="logoImg"
+              alt="Lilik Elektronik"
+              class="h-8 w-8 rounded-xl shadow-2xs ring-1 ring-slate-900/5 object-contain shrink-0"
+            />
+            <div class="min-w-0 flex flex-col justify-center">
+              <div class="flex items-center gap-1 leading-none">
+                <span class="text-xs font-black text-slate-800 tracking-tight">Lilik</span>
+                <span class="text-xs font-black bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 bg-clip-text text-transparent tracking-tight">Elektronik</span>
+              </div>
+              <p class="text-[11px] font-semibold text-slate-500 truncate leading-tight mt-0.5">
+                {{ currentPageTitle }}
+              </p>
+            </div>
           </div>
         </div>
 

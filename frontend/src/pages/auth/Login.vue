@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router'
 import { login as apiLogin } from '../../services/authService'
 import { useAuth } from '../../stores/auth'
 
+import logoImg from '../../assets/Logo LEMS.png'
+
 const router = useRouter()
 const { setAuth } = useAuth()
 
@@ -45,14 +47,24 @@ const login = async () => {
   <div class="min-h-screen bg-slate-100 flex items-center justify-center px-4">
     <div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
 
-      <div class="mb-8 text-center">
-        <h1 class="text-3xl font-bold text-slate-800">
-          ElectroStock
-        </h1>
+      <div class="mb-8 text-center flex flex-col items-center">
+        <div class="relative mb-3">
+          <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-blue-600 to-cyan-500 opacity-20 blur-md"></div>
+          <img
+            :src="logoImg"
+            alt="Lilik Elektronik"
+            class="relative h-16 w-16 rounded-2xl shadow-md ring-1 ring-slate-900/5 object-contain"
+          />
+        </div>
 
-        <p class="mt-2 text-sm text-slate-500">
-          Inventory Management System
-        </p>
+        <div class="flex items-center gap-1.5 text-2xl font-black tracking-tight">
+          <span class="text-slate-800">Lilik</span>
+          <span class="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 bg-clip-text text-transparent">Elektronik</span>
+        </div>
+
+        <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold">
+          <span>⚡ Stock Management System</span>
+        </div>
       </div>
 
       <div
