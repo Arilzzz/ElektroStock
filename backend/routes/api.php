@@ -7,9 +7,11 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\StockController;
+use App\Http\Controllers\Brand2Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/brandss', [Brand2Controller::class, 'index']);
 
 Route::post('/login', [AuthController::class, 'login']);
 
